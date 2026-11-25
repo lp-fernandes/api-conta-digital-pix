@@ -1,0 +1,30 @@
+services:
+  banco:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: contadigital
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 10
+    volumes:
+      - dados:/var/lib/postgresql/data
+
+  api:
+    build: .
+    depends_on:
+      banco:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@banco:5432/contadigital
+      JWT_SECRET: troque-este-segredo-em-producao
+      PORT: 3000
+    ports:
+      - "3000:3000"
+
+volumes:
+  dados:

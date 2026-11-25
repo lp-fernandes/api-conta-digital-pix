@@ -1,0 +1,55 @@
+{
+  "name": "api-conta-digital-pix",
+  "version": "1.0.0",
+  "description": "API REST de conta digital com PIX: Node.js, Express, PostgreSQL, JWT, idempotência, controle de concorrência e auditoria",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "migrar": "node src/db/migrar.js",
+    "lint": "eslint src tests",
+    "test": "jest --runInBand",
+    "test:unit": "jest tests/unit"
+  },
+  "keywords": [
+    "pix",
+    "api",
+    "nodejs",
+    "postgresql",
+    "fintech"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.5",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.1",
+    "pino": "^10.4.0",
+    "pino-http": "^11.0.0",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "jest": "^30.5.2",
+    "supertest": "^7.3.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "setupFiles": [
+      "<rootDir>/tests/setup-env.js"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/server.js"
+    ]
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
