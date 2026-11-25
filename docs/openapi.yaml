@@ -1,0 +1,134 @@
+openapi: 3.0.3
+info:
+  title: API Conta Digital (PIX)
+  version: 1.0.0
+  description: |
+    API REST de conta digital com transferências no padrão PIX.
+    Valores monetários trafegam como string em reais ("150.75") e são armazenados em centavos.
+servers:
+  - url: http://localhost:3000
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Erro:
+      type: object
+      properties:
+        erro:
+          type: object
+          properties:
+            codigo: { type: string, example: SALDO_INSUFICIENTE }
+            mensagem: { type: string, example: Saldo insuficiente }
+            detalhes: { type: array, items: { type: object } }
+paths:
+  /health:
+    get:
+      summary: Verifica a saúde da API e do banco
+      responses:
+        '200': { description: OK }
+        '503': { description: Banco indisponível }
+  /auth/cadastro:
+    post:
+      summary: Cadastra cliente e abre a conta
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nome, cpf, email, senha]
+              properties:
+                nome: { type: string, example: Maria Silva }
+                cpf: { type: string, example: '529.982.247-25' }
+                email: { type: string, example: maria@email.com }
+                senha: { type: string, example: Senha123 }
+      responses:
+        '201': { description: Cliente e conta criados (CPF retornado mascarado) }
+        '400': { description: Dados inválidos, content: { application/json: { schema: { $ref: '#/components/schemas/Erro' } } } }
+        '409': { description: Cliente já existe }
+  /auth/login:
+    post:
+      summary: Autentica e devolve um JWT (expira em 15 minutos)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                senha: { type: string }
+      responses:
+        '200': { description: Token JWT }
+        '401': { description: Credenciais inválidas }
+  /contas/me:
+    get:
+      summary: Dados e saldo da conta
+      security: [{ bearer: [] }]
+      responses:
+        '200': { description: Conta }
+  /contas/me/deposito:
+    post:
+      summary: Depósito simulado (sandbox)
+      security: [{ bearer: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { valor: { type: string, example: '500.00' } } }
+      responses:
+        '201': { description: Depósito realizado }
+  /contas/me/extrato:
+    get:
+      summary: Extrato paginado
+      security: [{ bearer: [] }]
+      parameters:
+        - { in: query, name: pagina, schema: { type: integer, default: 1 } }
+        - { in: query, name: limite, schema: { type: integer, default: 20, maximum: 100 } }
+      responses:
+        '200': { description: Lista de transações com direção ENTRADA/SAIDA }
+  /pix/chaves:
+    get:
+      summary: Lista as chaves PIX da conta
+      security: [{ bearer: [] }]
+      responses:
+        '200': { description: Chaves (CPF mascarado) }
+    post:
+      summary: Cadastra chave PIX (CPF, EMAIL ou ALEATORIA)
+      security: [{ bearer: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { tipo: { type: string, enum: [CPF, EMAIL, ALEATORIA] } } }
+      responses:
+        '201': { description: Chave criada }
+        '409': { description: Chave já cadastrada }
+        '422': { description: Limite de chaves atingido }
+  /pix/transferencias:
+    post:
+      summary: Envia um PIX
+      description: |
+        Envie o header `Idempotency-Key` para que reenvios (timeout, duplo clique) não dupliquem a transferência.
+        Regras: saldo, limite diário por conta e limite por transação no período noturno (20h às 6h).
+      security: [{ bearer: [] }]
+      parameters:
+        - { in: header, name: Idempotency-Key, schema: { type: string, minLength: 8, maxLength: 64 } }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [chave, valor]
+              properties:
+                chave: { type: string, example: joao@email.com }
+                valor: { type: string, example: '120.50' }
+                descricao: { type: string, example: Aluguel }
+      responses:
+        '201': { description: PIX realizado }
+        '200': { description: Reenvio com a mesma Idempotency-Key (devolve a transferência original) }
+        '404': { description: Chave PIX não encontrada }
+        '422':
+          description: SALDO_INSUFICIENTE, LIMITE_DIARIO_EXCEDIDO, LIMITE_NOTURNO_EXCEDIDO ou MESMA_CONTA
+          content: { application/json: { schema: { $ref: '#/components/schemas/Erro' } } }
