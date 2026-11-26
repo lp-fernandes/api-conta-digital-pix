@@ -1,0 +1,23 @@
+{
+  "name": "API Conta Digital PIX",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "remoteEnv": {
+    "DATABASE_URL": "postgres://postgres:postgres@localhost:5432/contadigital",
+    "TEST_DATABASE_URL": "postgres://postgres:postgres@localhost:5432/contadigital_test",
+    "JWT_SECRET": "segredo-apenas-para-codespaces"
+  },
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": { "label": "API Conta Digital", "onAutoForward": "openBrowser" }
+  },
+  "postCreateCommand": "npm install",
+  "postStartCommand": "npm run migrar || (sleep 5 && npm run migrar)",
+  "postAttachCommand": "npm run dev",
+  "customizations": {
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint", "humao.rest-client"]
+    }
+  }
+}
