@@ -26,6 +26,7 @@ function criarApp() {
 
   const openapi = YAML.load(path.join(__dirname, '..', 'docs', 'openapi.yaml'));
   app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapi));
+  app.get('/', (_req, res) => res.redirect('/docs'));
 
   app.get('/health', async (_req, res) => {
     try {
