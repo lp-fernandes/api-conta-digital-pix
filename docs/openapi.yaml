@@ -6,7 +6,8 @@ info:
     API REST de conta digital com transferências no padrão PIX.
     Valores monetários trafegam como string em reais ("150.75") e são armazenados em centavos.
 servers:
-  - url: http://localhost:3000
+  - url: /
+    description: Servidor atual
 components:
   securitySchemes:
     bearer:
