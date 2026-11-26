@@ -7,9 +7,10 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "migrar": "node src/db/migrar.js",
-    "lint": "eslint src tests",
+    "lint": "eslint src tests scripts",
     "test": "jest --runInBand",
-    "test:unit": "jest tests/unit"
+    "test:unit": "jest tests/unit",
+    "demo": "node scripts/demo.js"
   },
   "keywords": [
     "pix",

@@ -52,6 +52,15 @@ src/
 └── utils/                 # Dinheiro, CPF, relógio/fuso, erros
 ```
 
+## Testar no navegador (sem instalar nada)
+
+[![Abrir no GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/lp-fernandes/api-conta-digital-pix?quickstart=1)
+
+1. Clique no botão acima. O ambiente sobe com Node.js e PostgreSQL já configurados e a API inicia sozinha.
+2. Quando a porta **3000** abrir no navegador, você cai na **documentação interativa (Swagger)**.
+3. Em um novo terminal, rode `npm run demo`. O roteiro cadastra dois clientes, faz depósito e PIX e demonstra a idempotência e os erros de negócio.
+4. Para rodar a suíte de testes: `npm test`.
+
 ## Como executar
 
 **Com Docker:**
